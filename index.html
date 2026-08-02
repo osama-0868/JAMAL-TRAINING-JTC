@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - معهد جمال للغات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Reem+Kufi:wght@500;700&family=Amiri:wght@400;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;0,900&family=EB+Garamond:ital,wght@0,500;1,500&family=Alex+Brush&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+
+        <!-- التحقق من الجلسة -->
+        <div v-if="!isLoggedIn" class="access-denied">
+            <i class="fas fa-lock"></i>
+            <h2 data-i18n="access_denied">الوصول ممنوع</h2>
+            <p data-i18n="please_login">الرجاء تسجيل الدخول أولاً</p>
+            <button class="btn btn-primary" @click="goToLogin">
+                <i class="fas fa-sign-in-alt"></i> <span data-i18n="go_to_login">انتقال إلى تسجيل الدخول</span>
+            </button>
+        </div>
+
+        <!-- المحتوى الرئيسي -->
+        <div v-else>
+
+            <!-- شريط علوي -->
+            <header class="header">
+                <div class="header-brand">
+                    <div class="brand-badge"><i class="fas fa-graduation-cap"></i></div>
+                    <div>
+                        <h1 data-i18n="institute_name">معهد جمال للغات</h1>
+                        <div class="sub" data-i18n="admin_panel">لوحة تحكم المدير · إدارة الشهادات</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-outline btn-sm" @click="toggleLanguage">
+                        <i class="fas fa-globe"></i> {{ currentLang === 'ar' ? 'English' : 'العربية' }}
+                    </button>
+                    <button class="btn btn-danger btn-sm" @click="confirmLogout">
+                        <i class="fas fa-sign-out-alt"></i> <span data-i18n="logout">تسجيل خروج</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- بطاقات الإحصائيات -->
+            <div class="stats-row">
+                <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div>
+                        <div class="stat-num">{{ students.length }}</div>
+                        <div class="stat-label" data-i18n="total_students">إجمالي الطلاب</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-book-open"></i>
+                    <div>
+                        <div class="stat-num">{{ programCount }}</div>
+                        <div class="stat-label" data-i18n="total_programs">عدد البرامج</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-certificate"></i>
+                    <div>
+                        <div class="stat-num">{{ students.length }}</div>
+                        <div class="stat-label" data-i18n="certificates_issued">شهادات صادرة</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- نموذج الإضافة والتعديل -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>{{ editMode ? t('edit_student_data') : t('add_new_student') }}</span>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label data-i18n="full_name">الاسم الكامل</label>
+                        <input v-model="form.fullName" :placeholder="t('full_name_placeholder')" @keyup.enter="saveStudent">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="program">البرنامج / الدورة</label>
+                        <input v-model="form.program" :placeholder="t('program_placeholder')" @keyup.enter="saveStudent">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="hours">الساعات المعتمدة</label>
+                        <input v-model="form.hours" :placeholder="t('hours_placeholder')" @keyup.enter="saveStudent">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="cert_no">رقم الشهادة</label>
+                        <input v-model="form.certNo" :placeholder="t('cert_no_placeholder')" @keyup.enter="saveStudent">
+                    </div>
+                    <div class="form-group">
+                        <label data-i18n="issue_date">تاريخ الإصدار</label>
+                        <input type="date" v-model="form.issueDate">
+                    </div>
+                    <div class="form-group form-actions-group">
+                        <button class="btn btn-primary" @click="saveStudent">
+                            <i class="fas fa-save"></i>
+                            <span>{{ editMode ? t('update') : t('save') }}</span>
+                        </button>
+                        <button class="btn btn-outline btn-sm" @click="resetForm" v-if="editMode">
+                            <i class="fas fa-times"></i> <span data-i18n="cancel">إلغاء</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="hint-line">
+                    <i class="fas fa-info-circle"></i> <span data-i18n="all_fields_editable">جميع الحقول قابلة للتعديل. يمكنك إضافة / تعديل / حذف أي طالب.</span>
+                </div>
+            </div>
+
+            <!-- جدول الطلاب -->
+            <div class="card">
+                <div class="card-title-row">
+                    <div class="card-title">
+                        <i class="fas fa-list"></i>
+                        <span data-i18n="student_list">قائمة الطلاب</span>
+                    </div>
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input v-model="searchQuery" :placeholder="t('search_placeholder')">
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th data-i18n="full_name">الاسم</th>
+                                <th data-i18n="program">البرنامج</th>
+                                <th data-i18n="hours">الساعات</th>
+                                <th data-i18n="cert_no">رقم الشهادة</th>
+                                <th data-i18n="actions">إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(s, idx) in filteredStudents" :key="s.id">
+                                <td>{{ idx+1 }}</td>
+                                <td>
+                                    <div class="name-cell">
+                                        <span class="avatar">{{ initials(s.fullName) }}</span>
+                                        <strong>{{ s.fullName }}</strong>
+                                    </div>
+                                </td>
+                                <td>{{ s.program }}</td>
+                                <td>{{ s.hours }}</td>
+                                <td><span class="badge">{{ s.certNo }}</span></td>
+                                <td>
+                                    <div class="flex-actions">
+                                        <button class="btn btn-warning btn-sm" @click="editStudent(getRealIndex(s))" :title="t('edit')">
+                                            <i class="fas fa-pen"></i>
+                                        </button>
+                                        <button class="btn btn-danger btn-sm" @click="askDelete(getRealIndex(s))" :title="t('delete')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        <button class="btn btn-outline btn-sm" @click="previewCert(getRealIndex(s))" :title="t('preview')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr v-if="!filteredStudents.length">
+                                <td colspan="6" class="empty-row">
+                                    <i class="fas fa-user-slash"></i>
+                                    <span>{{ students.length ? t('no_search_results') : t('no_students') }}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- معاينة الشهادة -->
+            <div class="card">
+                <div class="card-title">
+                    <i class="fas fa-certificate"></i>
+                    <span data-i18n="cert_preview">معاينة الشهادة (قابلة للطباعة/التحميل)</span>
+                </div>
+
+                <!-- تصميم الشهادة -->
+                <div v-if="previewStudent" class="certificate-wrap">
+                    <div class="certificate-box" id="certificateToPrint">
+
+                        <!-- الإطار الزخرفي (كحلي + ذهبي) -->
+                        <svg class="cert-frame" viewBox="0 0 1280 854" preserveAspectRatio="none">
+                            <defs>
+                                <linearGradient id="navyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" stop-color="#173a5e"/>
+                                    <stop offset="55%" stop-color="#0c1f38"/>
+                                    <stop offset="100%" stop-color="#081527"/>
+                                </linearGradient>
+                            </defs>
+
+                            <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="url(#navyGrad)"/>
+                            <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="none" stroke="#8a6423" stroke-width="15" opacity="0.55"/>
+                            <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="none" stroke="#c9a24a" stroke-width="8"/>
+                            <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="none" stroke="#f1dca2" stroke-width="2.4"/>
+
+                            <g transform="translate(1280,854) rotate(180)">
+                                <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="url(#navyGrad)"/>
+                                <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="none" stroke="#8a6423" stroke-width="15" opacity="0.55"/>
+                                <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="none" stroke="#c9a24a" stroke-width="8"/>
+                                <path d="M 0,0 L 372,0 Q 0,140 0,280 Z" fill="none" stroke="#f1dca2" stroke-width="2.4"/>
+                            </g>
+
+                            <g fill="none" stroke="#b8892f">
+                                <polyline points="990,16 1264,16 1264,290" stroke-width="2"/>
+                                <polyline points="990,24 1257,24 1257,290" stroke-width="1.2" opacity="0.75"/>
+                            </g>
+                            <g transform="translate(1280,854) rotate(180)" fill="none" stroke="#b8892f">
+                                <polyline points="990,16 1264,16 1264,290" stroke-width="2"/>
+                                <polyline points="990,24 1257,24 1257,290" stroke-width="1.2" opacity="0.75"/>
+                            </g>
+
+                            <rect x="3" y="3" width="1274" height="848" rx="8" fill="none" stroke="#b8892f" stroke-width="1" opacity="0.35"/>
+                        </svg>
+
+                        <!-- ختم المعهد -->
+                        <div class="cert-seal">
+                            <img src="jtc-logo.jpg" alt="Jamal Training Center">
+                        </div>
+                        <div class="cert-bn">BN: 1170252</div>
+
+                        <!-- رقم الشهادة -->
+                        <div class="cert-no-block">
+                            <div class="cert-no-label" data-i18n="cert_no_label">رقم الشهادة</div>
+                            <div class="cert-no-value">{{ previewStudent.certNo || '00058' }}</div>
+                        </div>
+
+                        <!-- QR التحقق -->
+                        <div class="cert-qr-block">
+                            <div class="qr-box"><div id="qrCodeContainer"></div></div>
+                            <div class="cert-qr-caption" data-i18n="qr_code">امسح للتحقق من الشهادة</div>
+                        </div>
+
+                        <!-- المحتوى الرئيسي -->
+                        <div class="cert-content">
+                            <div class="cert-bismillah">بِسْمِ اللهِ الرَّحْمَنِ الرَّحِيمِ</div>
+
+                            <div class="cert-divider">
+                                <svg width="210" height="20" viewBox="0 0 210 20">
+                                    <path d="M14,10 C14,4 20,4 26,7" fill="none" stroke="#b8892f" stroke-width="1.2"/>
+                                    <circle cx="8" cy="10" r="2" fill="#b8892f"/>
+                                    <line x1="26" y1="9" x2="77" y2="9" stroke="#b8892f" stroke-width="1"/>
+                                    <circle cx="87" cy="9" r="2" fill="#b8892f"/>
+                                    <rect x="99" y="3" width="12" height="12" transform="rotate(45 105 9)" fill="none" stroke="#b8892f" stroke-width="1.2"/>
+                                    <circle cx="123" cy="9" r="2" fill="#b8892f"/>
+                                    <line x1="133" y1="9" x2="184" y2="9" stroke="#b8892f" stroke-width="1"/>
+                                    <path d="M196,9 C202,6 202,12 196,10" fill="none" stroke="#b8892f" stroke-width="1.2"/>
+                                    <circle cx="202" cy="10" r="2" fill="#b8892f"/>
+                                </svg>
+                            </div>
+
+                            <div class="cert-republic" data-i18n="republic">جمهورية السودان</div>
+
+                            <div class="cert-divider">
+                                <svg width="130" height="14" viewBox="0 0 130 14">
+                                    <line x1="0" y1="7" x2="46" y2="7" stroke="#b8892f" stroke-width="1"/>
+                                    <rect x="59" y="2" width="10" height="10" transform="rotate(45 64 7)" fill="none" stroke="#b8892f" stroke-width="1.2"/>
+                                    <line x1="84" y1="7" x2="130" y2="7" stroke="#b8892f" stroke-width="1"/>
+                                </svg>
+                            </div>
+
+                            <div class="cert-institute" data-i18n="institute_name_full">مركز جمال للتدريب</div>
+
+                            <h1 class="cert-title-main" data-i18n="cert_title_main">شهادة</h1>
+                            <div class="cert-title-sub"><span class="line"></span><span data-i18n="cert_title_sub">إتمام الدورة</span><span class="line"></span></div>
+
+                            <div class="cert-certify" data-i18n="this_certifies">تشهد هذه الشهادة بأن</div>
+
+                            <div class="cert-name-wrap">
+                                <svg width="46" height="30" viewBox="0 0 46 30"><path d="M44,15 C30,15 30,4 18,4 C10,4 6,10 6,15" fill="none" stroke="#b8892f" stroke-width="1.4"/><circle cx="6" cy="15" r="2.2" fill="#b8892f"/></svg>
+                                <div class="student-name" dir="auto" :style="{ fontSize: nameFontSize(previewStudent.fullName) + 'px' }">{{ previewStudent.fullName || '..........................' }}</div>
+                                <svg width="46" height="30" viewBox="0 0 46 30"><path d="M2,15 C16,15 16,4 28,4 C36,4 40,10 40,15" fill="none" stroke="#b8892f" stroke-width="1.4"/><circle cx="40" cy="15" r="2.2" fill="#b8892f"/></svg>
+                            </div>
+
+                            <div class="cert-lines">
+                                <div data-i18n="completed_program">قد أكمل بنجاح البرنامج الدراسي المطلوب</div>
+                                <div data-i18n="met_requirements">و استوفى جميع متطلبات الدورة</div>
+                            </div>
+
+                            <div class="cert-meta">
+                                <span><span data-i18n="program_label">البرنامج / الدورة</span>: <b dir="auto">{{ previewStudent.program || '.......................' }}</b></span>
+                                <span class="sep"></span>
+                                <span><span data-i18n="hours_label">الساعات المعتمدة</span>: <b dir="auto">{{ previewStudent.hours || '............' }}</b></span>
+                            </div>
+                            <div class="cert-issue-date" v-if="previewStudent.issueDate">
+                                <span data-i18n="issue_date_label">تاريخ الإصدار</span>: {{ formatDate(previewStudent.issueDate) }}
+                            </div>
+                        </div>
+
+                        <!-- التوقيعات -->
+                        <div class="cert-footer">
+                            <div class="sig-block">
+                                <div class="sig-name">ليلى جمال رحمة</div>
+                                <div class="sig-line"></div>
+                                <div class="sig-title" data-i18n="director">المدير</div>
+                            </div>
+                            <div class="medal-block">
+                                <svg width="140" height="185" viewBox="0 0 140 185">
+                                    <defs>
+                                        <radialGradient id="medalGrad" cx="35%" cy="30%" r="75%">
+                                            <stop offset="0%" stop-color="#f6e3ab"/>
+                                            <stop offset="45%" stop-color="#d9ac47"/>
+                                            <stop offset="100%" stop-color="#93691f"/>
+                                        </radialGradient>
+                                    </defs>
+                                    <g transform="translate(70,55)">
+                                        <g fill="#c9a24a" opacity="0.9">
+                                            <circle cx="0.0" cy="-42.0" r="15"/><circle cx="16.1" cy="-38.8" r="15"/><circle cx="29.7" cy="-29.7" r="15"/><circle cx="38.8" cy="-16.1" r="15"/><circle cx="42.0" cy="0.0" r="15"/><circle cx="38.8" cy="16.1" r="15"/><circle cx="29.7" cy="29.7" r="15"/><circle cx="16.1" cy="38.8" r="15"/><circle cx="0.0" cy="42.0" r="15"/><circle cx="-16.1" cy="38.8" r="15"/><circle cx="-29.7" cy="29.7" r="15"/><circle cx="-38.8" cy="16.1" r="15"/><circle cx="-42.0" cy="0.0" r="15"/><circle cx="-38.8" cy="-16.1" r="15"/><circle cx="-29.7" cy="-29.7" r="15"/><circle cx="-16.1" cy="-38.8" r="15"/>
+                                        </g>
+                                        <circle cx="0" cy="0" r="40" fill="url(#medalGrad)" stroke="#7a5c2b" stroke-width="1"/>
+                                        <circle cx="0" cy="0" r="33" fill="none" stroke="#fff3d6" stroke-width="1" opacity="0.6"/>
+                                        <path d="M0,-16 L4,-5 L15,-5 L6,2 L9,13 L0,6 L-9,13 L-6,2 L-15,-5 L-4,-5 Z" fill="#fff8e6" opacity="0.9"/>
+                                        <g stroke="#7a5c2b" stroke-width="1.6" fill="none" opacity="0.85">
+                                            <path d="M-30,10 Q-24,20 -14,24"/><path d="M-27,2 Q-20,10 -12,14"/><path d="M-25,-6 Q-18,0 -10,4"/>
+                                            <path d="M30,10 Q24,20 14,24"/><path d="M27,2 Q20,10 12,14"/><path d="M25,-6 Q18,0 10,4"/>
+                                        </g>
+                                    </g>
+                                    <path d="M 44,90 L 60,90 L 60,168 L 52,155 L 44,168 Z" fill="#0c1f38" stroke="#b8892f" stroke-width="1.2" transform="rotate(-8 52 90)"/>
+                                    <path d="M 80,90 L 96,90 L 96,168 L 88,155 L 80,168 Z" fill="#0c1f38" stroke="#b8892f" stroke-width="1.2" transform="rotate(8 88 90)"/>
+                                </svg>
+                            </div>
+                            <div class="sig-block">
+                                <div class="sig-name">جمال رحمة محمد</div>
+                                <div class="sig-line"></div>
+                                <div class="sig-title" data-i18n="manager">المدير التنفيذي</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div v-else class="certificate-box empty-cert">
+                    <i class="fas fa-id-card"></i>
+                    <p data-i18n="select_student">اختر طالباً من الجدول للمعاينة، أو أضف طالباً جديداً</p>
+                </div>
+
+                <!-- أزرار الطباعة والتحميل -->
+                <div class="action-bar" v-if="previewStudent">
+                    <button class="btn btn-success" @click="printCertificate(previewIndex)">
+                        <i class="fas fa-print"></i> <span data-i18n="print">طباعة</span>
+                    </button>
+                    <button class="btn btn-primary" @click="downloadPDF" :disabled="exporting">
+                        <i class="fas fa-file-pdf"></i> <span data-i18n="download_pdf">تحميل PDF</span>
+                    </button>
+                    <button class="btn btn-primary" @click="downloadPNG" :disabled="exporting">
+                        <i class="fas fa-image"></i> <span data-i18n="download_png">تحميل صورة</span>
+                    </button>
+                    <button class="btn btn-outline" @click="downloadQR">
+                        <i class="fas fa-qrcode"></i> <span data-i18n="download_qr">تحميل QR</span>
+                    </button>
+                    <span class="qr-info">
+                        <i class="fas fa-shield-alt"></i> <span data-i18n="qr_info">عند مسح الرمز تظهر صفحة توثيق ببيانات الطالب</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- نافذة تأكيد -->
+        <transition name="modal-fade">
+            <div v-if="confirmModal.show" class="modal-overlay" @click.self="confirmModal.show=false">
+                <div class="modal-box">
+                    <i class="fas fa-exclamation-triangle modal-icon"></i>
+                    <p>{{ confirmModal.message }}</p>
+                    <div class="modal-actions">
+                        <button class="btn btn-outline btn-sm" @click="confirmModal.show=false" data-i18n="cancel">إلغاء</button>
+                        <button class="btn btn-danger btn-sm" @click="confirmModal.onConfirm()">
+                            <span data-i18n="confirm">تأكيد</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <!-- إشعارات Toast -->
+        <div class="toast-stack">
+            <transition-group name="toast">
+                <div v-for="toast in toasts" :key="toast.id" class="toast" :class="toast.type">
+                    <i :class="toastIcon(toast.type)"></i>
+                    <span>{{ toast.message }}</span>
+                </div>
+            </transition-group>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
