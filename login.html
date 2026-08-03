@@ -38,14 +38,16 @@
                 <!-- نموذج الدخول -->
                 <form @submit.prevent="login" novalidate>
                     <div class="input-group" :class="{ shake: shakeUser }">
+                        <label class="sr-only" for="loginUsername" data-i18n="username">اسم المستخدم</label>
                         <i class="fas fa-user"></i>
-                        <input type="text" v-model.trim="username" :placeholder="t('username')" autocomplete="username" required>
+                        <input id="loginUsername" type="text" v-model.trim="username" :placeholder="t('username')" autocomplete="username" required>
                     </div>
 
                     <div class="input-group" :class="{ shake: shakeUser }">
+                        <label class="sr-only" for="loginPassword" data-i18n="password">كلمة المرور</label>
                         <i class="fas fa-lock"></i>
-                        <input :type="showPass ? 'text' : 'password'" v-model="password" :placeholder="t('password')" autocomplete="current-password" required>
-                        <button type="button" class="toggle-pass" @click="showPass = !showPass" :aria-label="t('password')">
+                        <input id="loginPassword" :type="showPass ? 'text' : 'password'" v-model="password" :placeholder="t('password')" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pass" @click="showPass = !showPass" :aria-label="t('password')" :title="t('password')">
                             <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                         </button>
                     </div>
