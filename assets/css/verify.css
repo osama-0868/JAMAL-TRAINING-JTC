@@ -1,31 +1,4 @@
-:root{
-    --navy-deep:   #0c1f38;
-    --navy-mid:    #163a5c;
-    --gold:        #b8892f;
-    --gold-light:  #e4c07a;
-    --cream:       #faf6ec;
-    --ink:         #1b2534;
-    --success:     #12795a;
-    --danger:      #b3261e;
-}
-
-*{ margin:0; padding:0; box-sizing:border-box; }
-
-body{
-    font-family:'Cairo', sans-serif;
-    background: radial-gradient(circle at 20% 20%, #14314f 0%, var(--navy-deep) 55%, #081222 100%);
-    min-height:100vh;
-    display:flex; justify-content:center; align-items:center;
-    padding:24px;
-}
-body[dir="ltr"]{ direction:ltr; text-align:left; }
-
-.bg-pattern{
-    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.10;
-    background-image:
-        repeating-linear-gradient(45deg, var(--gold-light) 0 2px, transparent 2px 40px),
-        repeating-linear-gradient(-45deg, var(--gold-light) 0 2px, transparent 2px 40px);
-}
+@import url('./base.css');
 
 .verify-container{ width:100%; max-width:480px; position:relative; z-index:1; }
 

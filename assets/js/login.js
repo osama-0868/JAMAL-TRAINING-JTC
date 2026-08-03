@@ -1,6 +1,3 @@
-// =========================================================
-// ملف الترجمة الخاص بصفحة تسجيل الدخول
-// =========================================================
 const loginTranslations = {
     ar: {
         institute_name: 'معهد جمال للغات',
@@ -30,80 +27,55 @@ const loginTranslations = {
     }
 };
 
-// =========================================================
-// تطبيق Vue الخاص بصفحة الدخول
-// =========================================================
 const loginApp = Vue.createApp({
     data() {
         return {
             username: '',
             password: '',
             errorMessage: '',
-            currentLang: 'ar',
+            currentLang: JTCShared.getSavedLang('ar'),
             translations: loginTranslations,
             showPass: false,
             loading: false,
             shakeUser: false
-        }
+        };
     },
     mounted() {
-        // التحقق من وجود جلسة نشطة مسبقاً
-        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+        if (JTCShared.isLoggedIn()) {
             window.location.href = 'index.html';
             return;
         }
 
-        // تحميل اللغة المحفوظة
-        const savedLang = localStorage.getItem('jtcLang');
-        if (savedLang) {
-            this.currentLang = savedLang;
-        }
         this.applyLanguage();
     },
     computed: {
         t() {
-            return (key) => this.translations[this.currentLang][key] || key;
+            return JTCShared.createTranslator(this.translations[this.currentLang]);
         }
     },
     watch: {
         currentLang() {
             this.applyLanguage();
-            localStorage.setItem('jtcLang', this.currentLang);
+            JTCShared.saveLang(this.currentLang);
         }
     },
     methods: {
         applyLanguage() {
-            const dir = this.currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.documentElement.setAttribute('dir', dir);
-            document.body.setAttribute('dir', dir);
-            document.documentElement.lang = this.currentLang;
-
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (this.translations[this.currentLang][key]) {
-                    el.textContent = this.translations[this.currentLang][key];
-                }
-            });
+            JTCShared.applyLanguage(this.currentLang, this.translations);
         },
-
         toggleLanguage() {
             this.currentLang = this.currentLang === 'ar' ? 'en' : 'ar';
         },
-
         login() {
-            // بيانات الدخول الافتراضية (يمكن تغييرها من هنا)
             const validUsername = 'admin';
             const validPassword = 'admin123';
 
             this.errorMessage = '';
             this.loading = true;
 
-            // محاكاة تحقق بسيطة لتحسين تجربة الاستخدام
             setTimeout(() => {
                 if (this.username === validUsername && this.password === validPassword) {
-                    // ملاحظة: نستخدم sessionStorage بدلاً من localStorage
-                    // بحيث تنتهي الجلسة تلقائياً عند إغلاق المتصفح لأمان أفضل
-                    sessionStorage.setItem('adminLoggedIn', 'true');
+                    JTCShared.setLoggedIn(true);
                     window.location.href = 'index.html';
                 } else {
                     this.loading = false;
