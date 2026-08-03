@@ -38,13 +38,13 @@
                 <form @submit.prevent="login" novalidate>
                     <div class="input-group" :class="{ shake: shakeUser }">
                         <i class="fas fa-user"></i>
-                        <input type="text" v-model.trim="username" :placeholder="t('username')" autocomplete="username" required>
+                        <input type="text" v-model.trim="username" :placeholder="t('username')" aria-label="Username" autocomplete="username" required>
                     </div>
 
                     <div class="input-group" :class="{ shake: shakeUser }">
                         <i class="fas fa-lock"></i>
-                        <input :type="showPass ? 'text' : 'password'" v-model="password" :placeholder="t('password')" autocomplete="current-password" required>
-                        <button type="button" class="toggle-pass" @click="showPass = !showPass" :aria-label="t('password')">
+                        <input :type="showPass ? 'text' : 'password'" v-model="password" :placeholder="t('password')" aria-label="Password" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pass" @click="showPass = !showPass" :aria-label="t('password')" aria-label="Show password">
                             <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
                         </button>
                     </div>
@@ -62,13 +62,10 @@
                     </transition>
                 </form>
 
-                <div class="login-footer">
-                    <i class="fas fa-info-circle"></i>
-                    <span data-i18n="default_credentials">المستخدم: admin | كلمة المرور: admin123</span>
-                </div>
+                <!-- تنبيه: تم حذف عرض بيانات الدخول الافتراضية لأسباب أمنية -->
             </div>
 
-            <p class="copyright" data-i18n="copyright">© معهد جمال للغات — جميع الحقوق محفوظة</p>
+            <p class="copyright" data-i18n="copyright">©️ معهد جمال للغات — جميع الحقوق محفوظة</p>
         </div>
     </div>
 

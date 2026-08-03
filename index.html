@@ -80,23 +80,23 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label data-i18n="full_name">الاسم الكامل</label>
-                        <input v-model="form.fullName" :placeholder="t('full_name_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.fullName" :placeholder="t('full_name_placeholder')" aria-label="Full name" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="program">البرنامج / الدورة</label>
-                        <input v-model="form.program" :placeholder="t('program_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.program" :placeholder="t('program_placeholder')" aria-label="Program" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="hours">الساعات المعتمدة</label>
-                        <input v-model="form.hours" :placeholder="t('hours_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.hours" :placeholder="t('hours_placeholder')" aria-label="Hours" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="cert_no">رقم الشهادة</label>
-                        <input v-model="form.certNo" :placeholder="t('cert_no_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.certNo" :placeholder="t('cert_no_placeholder')" aria-label="Certificate number" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="issue_date">تاريخ الإصدار</label>
-                        <input type="date" v-model="form.issueDate">
+                        <input type="date" v-model="form.issueDate" aria-label="Issue date">
                     </div>
                     <div class="form-group form-actions-group">
                         <button class="btn btn-primary" @click="saveStudent">
@@ -122,7 +122,7 @@
                     </div>
                     <div class="search-box">
                         <i class="fas fa-search"></i>
-                        <input v-model="searchQuery" :placeholder="t('search_placeholder')">
+                        <input v-model="searchQuery" :placeholder="t('search_placeholder')" aria-label="Search">
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -151,13 +151,13 @@
                                 <td><span class="badge">{{ s.certNo }}</span></td>
                                 <td>
                                     <div class="flex-actions">
-                                        <button class="btn btn-warning btn-sm" @click="editStudent(getRealIndex(s))" :title="t('edit')">
+                                        <button class="btn btn-warning btn-sm" @click="editStudent(getRealIndex(s))" :title="t('edit')" aria-label="Edit student">
                                             <i class="fas fa-pen"></i>
                                         </button>
-                                        <button class="btn btn-danger btn-sm" @click="askDelete(getRealIndex(s))" :title="t('delete')">
+                                        <button class="btn btn-danger btn-sm" @click="askDelete(getRealIndex(s))" :title="t('delete')" aria-label="Delete student">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <button class="btn btn-outline btn-sm" @click="previewCert(getRealIndex(s))" :title="t('preview')">
+                                        <button class="btn btn-outline btn-sm" @click="previewCert(getRealIndex(s))" :title="t('preview')" aria-label="Preview certificate">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </div>
@@ -388,5 +388,6 @@
 
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <script src="script.js"></script>
+<script type="module" src="firebase-config.js"></script>
 </body>
 </html>
