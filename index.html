@@ -82,27 +82,27 @@
                     <div class="form-group">
                         <label data-i18n="full_name">الاسم الكامل</label>
                         <label class="sr-only" for="studentFullName" data-i18n="full_name_placeholder">أدخل الاسم كما في الشهادة</label>
-                        <input v-model="form.fullName" :placeholder="t('full_name_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.fullName" :placeholder="t('full_name_placeholder')" title="الاسم الكامل" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="program">البرنامج / الدورة</label>
                         <label class="sr-only" for="studentProgram" data-i18n="program_placeholder">مثال: دورة اللغة الإنجليزية</label>
-                        <input v-model="form.program" :placeholder="t('program_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.program" :placeholder="t('program_placeholder')" title="البرنامج / الدورة" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="hours">الساعات المعتمدة</label>
                         <label class="sr-only" for="studentHours" data-i18n="hours_placeholder">مثال: 120 ساعة</label>
-                        <input v-model="form.hours" :placeholder="t('hours_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.hours" :placeholder="t('hours_placeholder')" title="الساعات المعتمدة" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="cert_no">رقم الشهادة</label>
                         <label class="sr-only" for="studentCertNo" data-i18n="cert_no_placeholder">مثال: 00058</label>
-                        <input v-model="form.certNo" :placeholder="t('cert_no_placeholder')" @keyup.enter="saveStudent">
+                        <input v-model="form.certNo" :placeholder="t('cert_no_placeholder')" title="رقم الشهادة" @keyup.enter="saveStudent">
                     </div>
                     <div class="form-group">
                         <label data-i18n="issue_date">تاريخ الإصدار</label>
                         <label class="sr-only" for="studentIssueDate" data-i18n="issue_date_label">تاريخ الإصدار</label>
-                        <input id="studentIssueDate" type="date" v-model="form.issueDate">
+                        <input id="studentIssueDate" type="date" v-model="form.issueDate" title="تاريخ الإصدار">
                     </div>
                     <div class="form-group form-actions-group">
                         <button class="btn btn-primary" @click="saveStudent">
@@ -129,7 +129,7 @@
                     <div class="search-box">
                         <i class="fas fa-search"></i>
                         <label class="sr-only" for="studentSearch" data-i18n="search_placeholder">ابحث بالاسم أو رقم الشهادة...</label>
-                        <input v-model="searchQuery" :placeholder="t('search_placeholder')">
+                        <input id="studentSearch" v-model="searchQuery" :placeholder="t('search_placeholder')" title="ابحث بالاسم أو رقم الشهادة...">
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -158,15 +158,15 @@
                                 <td><span class="badge">{{ s.certNo }}</span></td>
                                 <td>
                                     <div class="flex-actions">
-                                        <button class="btn btn-warning btn-sm" @click="editStudent(getRealIndex(s))" title="Edit">
+                                        <button class="btn btn-warning btn-sm" @click="editStudent(getRealIndex(s))" title="تعديل">
                                             <i class="fas fa-pen"></i>
                                             <span class="sr-only" data-i18n="edit">تعديل</span>
                                         </button>
-                                        <button class="btn btn-danger btn-sm" @click="askDelete(getRealIndex(s))" title="Delete">
+                                        <button class="btn btn-danger btn-sm" @click="askDelete(getRealIndex(s))" title="حذف">
                                             <i class="fas fa-trash"></i>
                                             <span class="sr-only" data-i18n="delete">حذف</span>
                                         </button>
-                                        <button class="btn btn-outline btn-sm" @click="previewCert(getRealIndex(s))" title="Preview">
+                                        <button class="btn btn-outline btn-sm" @click="previewCert(getRealIndex(s))" title="معاينة">
                                             <i class="fas fa-eye"></i>
                                             <span class="sr-only" data-i18n="preview">معاينة</span>
                                         </button>
