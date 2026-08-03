@@ -36,7 +36,7 @@ function decodePayload() {
         const obj = JSON.parse(json);
         if (!obj.name || !obj.certNo) return null;
         return obj;
-    } catch (e) {
+    } catch (error) {
         return null;
     }
 }
@@ -45,39 +45,29 @@ const verifyApp = Vue.createApp({
     data() {
         return {
             data: decodePayload(),
-            currentLang: 'ar',
+            currentLang: JTCShared.getSavedLang('ar'),
             translations: verifyTranslations
-        }
+        };
     },
     mounted() {
-        // إن حمل الرمز لغة محفوظة من الشهادة نفسها نستخدمها كافتراضي
         if (this.data && this.data.inst && this.translations[this.data.inst]) {
             this.currentLang = this.data.inst;
-        } else {
-            const savedLang = localStorage.getItem('jtcLang');
-            if (savedLang) this.currentLang = savedLang;
         }
         this.applyLanguage();
     },
     computed: {
         t() {
-            return (key) => this.translations[this.currentLang][key] || key;
+            return JTCShared.createTranslator(this.translations[this.currentLang]);
         }
     },
     watch: {
-        currentLang() { this.applyLanguage(); }
+        currentLang() {
+            this.applyLanguage();
+        }
     },
     methods: {
         applyLanguage() {
-            const dir = this.currentLang === 'ar' ? 'rtl' : 'ltr';
-            document.documentElement.setAttribute('dir', dir);
-            document.documentElement.lang = this.currentLang;
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (this.translations[this.currentLang][key]) {
-                    el.textContent = this.translations[this.currentLang][key];
-                }
-            });
+            JTCShared.applyLanguage(this.currentLang, this.translations);
         },
         toggleLanguage() {
             this.currentLang = this.currentLang === 'ar' ? 'en' : 'ar';
@@ -86,8 +76,14 @@ const verifyApp = Vue.createApp({
             if (!dateStr) return '';
             try {
                 const d = new Date(dateStr);
-                return d.toLocaleDateString(this.currentLang === 'ar' ? 'ar-EG' : 'en-GB', { year:'numeric', month:'long', day:'numeric' });
-            } catch(e) { return dateStr; }
+                return d.toLocaleDateString(this.currentLang === 'ar' ? 'ar-EG' : 'en-GB', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (error) {
+                return dateStr;
+            }
         }
     }
 });

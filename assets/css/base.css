@@ -1,0 +1,77 @@
+:root{
+    --navy-deep:   #0c1f38;
+    --navy-mid:    #163a5c;
+    --navy-soft:   #1f4d75;
+    --gold:        #b8892f;
+    --gold-light:  #e4c07a;
+    --gold-dark:   #8a6423;
+    --navy-ink:    #0a1730;
+    --cream:       #faf8f2;
+    --ink:         #1b2534;
+    --slate:       #f4f6fa;
+    --danger:      #b3261e;
+    --success:     #12795a;
+    --warning:     #b45309;
+    --radius-lg:   28px;
+    --radius-md:   16px;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+body{
+    font-family:'Cairo', sans-serif;
+    background: radial-gradient(circle at 20% 20%, #14314f 0%, var(--navy-deep) 55%, #081222 100%);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    padding:24px;
+    position:relative;
+    overflow-x:hidden;
+    color:var(--ink);
+}
+
+body[dir="ltr"]{ direction:ltr; text-align:left; }
+
+.bg-pattern{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    opacity:0.10;
+    background-image:
+        repeating-linear-gradient(45deg, var(--gold-light) 0 2px, transparent 2px 40px),
+        repeating-linear-gradient(-45deg, var(--gold-light) 0 2px, transparent 2px 40px);
+}
+
+.page-shell{
+    width:100%;
+    position:relative;
+    z-index:1;
+}
+
+.btn{
+    padding:11px 24px; border:none; border-radius:40px; font-weight:700;
+    font-family:'Cairo',sans-serif; cursor:pointer; transition:.2s;
+    display:inline-flex; align-items:center; gap:8px; font-size:0.92rem;
+}
+.btn:focus-visible{ outline:2px solid var(--navy-mid); outline-offset:2px; }
+.btn:disabled{ opacity:0.55; cursor:not-allowed; }
+
+.btn-primary{ background:var(--navy-mid); color:#fff; }
+.btn-primary:hover:not(:disabled){ background:var(--navy-deep); transform:translateY(-2px); box-shadow:0 8px 18px rgba(22,58,92,0.28); }
+
+.btn-success{ background:var(--success); color:#fff; }
+.btn-success:hover{ background:#0e5f45; transform:translateY(-2px); }
+
+.btn-danger{ background:var(--danger); color:#fff; }
+.btn-danger:hover{ background:#8f1a14; transform:translateY(-2px); }
+
+.btn-warning{ background:var(--warning); color:#fff; }
+.btn-warning:hover{ background:#8a3d06; transform:translateY(-2px); }
+
+.btn-outline{ background:transparent; border:2px solid var(--navy-mid); color:var(--navy-mid); }
+.btn-outline:hover{ background:var(--navy-mid); color:#fff; }
+
+.btn-sm{ padding:8px 16px; font-size:0.8rem; border-radius:30px; }
+
+@media (max-width: 768px){
+    body{ padding:16px; }
+}
