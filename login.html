@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - معهد جمال للغات</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="login-style.css">
+</head>
+<body>
+    <div id="loginApp">
+
+        <!-- خلفية زخرفية -->
+        <div class="bg-pattern" aria-hidden="true"></div>
+
+        <div class="login-container">
+            <div class="login-card">
+
+                <!-- زر تبديل اللغة -->
+                <button class="lang-toggle" @click="toggleLanguage" type="button">
+                    <i class="fas fa-globe"></i>
+                    <span>{{ currentLang === 'ar' ? 'EN' : 'ع' }}</span>
+                </button>
+
+                <!-- الشعار -->
+                <div class="login-logo">
+                    <div class="logo-badge">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h1 data-i18n="institute_name">معهد جمال للغات</h1>
+                    <p class="tagline" data-i18n="tagline">نظام إدارة الشهادات الرقمي</p>
+                </div>
+
+                <div class="divider"><span data-i18n="admin_login">تسجيل دخول المدير</span></div>
+
+                <!-- نموذج الدخول -->
+                <form @submit.prevent="login" novalidate>
+                    <div class="input-group" :class="{ shake: shakeUser }">
+                        <i class="fas fa-user"></i>
+                        <input type="text" v-model.trim="username" :placeholder="t('username')" autocomplete="username" required>
+                    </div>
+
+                    <div class="input-group" :class="{ shake: shakeUser }">
+                        <i class="fas fa-lock"></i>
+                        <input :type="showPass ? 'text' : 'password'" v-model="password" :placeholder="t('password')" autocomplete="current-password" required>
+                        <button type="button" class="toggle-pass" @click="showPass = !showPass" :aria-label="t('password')">
+                            <i :class="showPass ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                        </button>
+                    </div>
+
+                    <button type="submit" class="btn-login" :disabled="loading">
+                        <i class="fas fa-spinner fa-spin" v-if="loading"></i>
+                        <i class="fas fa-arrow-left" v-else></i>
+                        <span>{{ loading ? t('checking') : t('login') }}</span>
+                    </button>
+
+                    <transition name="pop">
+                        <div v-if="errorMessage" class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+                        </div>
+                    </transition>
+                </form>
+
+                <div class="login-footer">
+                    <i class="fas fa-info-circle"></i>
+                    <span data-i18n="default_credentials">المستخدم: admin | كلمة المرور: admin123</span>
+                </div>
+            </div>
+
+            <p class="copyright" data-i18n="copyright">© معهد جمال للغات — جميع الحقوق محفوظة</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="login-script.js"></script>
+</body>
+</html>
